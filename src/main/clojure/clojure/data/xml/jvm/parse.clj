@@ -130,10 +130,8 @@
   (let [fac (make-input-factory props)]
     (cond
       (instance? Reader source)
-      (let [reader (.createXMLStreamReader fac ^Reader source)]
-        reader)
-      (instance? InputStream source)
-      (.createXMLStreamReader fac ^InputStream source)
+      (.createXMLStreamReader fac ^Reader source)
+      (instance? InputStream source) (.createXMLStreamReader fac ^InputStream source)
       :else (throw (IllegalArgumentException.
                      "source should be java.io.Reader or java.io.InputStream")))))
 
