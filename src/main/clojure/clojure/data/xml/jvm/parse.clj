@@ -20,6 +20,12 @@
    (java.io InputStream Reader)
    (javax.xml.stream
     XMLInputFactory XMLStreamReader XMLStreamConstants)
+   (javax.xml.parsers
+    SAXParser)
+   (com.ctc.wstx.api
+    WstxInputProperties)
+   (org.xml.sax
+    XMLReader)
    (clojure.data.xml.event EndElementEvent)))
 
 (def ^{:private true} input-factory-props
@@ -74,6 +80,7 @@
    (loop []
      (let [location (when location-info
                       (location-hash sreader))]
+       (println (str "well, let's try to get the next event from the reader: " sreader))
        (static-case
          (.next sreader)
          XMLStreamConstants/START_ELEMENT
@@ -96,10 +103,16 @@
                      (pull-seq sreader opts (rest ns-envs))))
            (recur))
          XMLStreamConstants/CHARACTERS
-         (if-let [text (and (include-node? :characters)
-                            (not (and skip-whitespace
-                                      (.isWhiteSpace sreader)))
-                            (.getText sreader))]
+         (if-let [text
+                  (do
+                    (println (str "GOING TO READ SOME TEXT..."))
+                    (and (include-node? :characters)
+                         (not (and skip-whitespace
+                                   (.isWhiteSpace sreader)))
+                         (let [text (.getText sreader)]
+                           (if text (println (str "got some text from .getText(): " text " with length: " (count text)))
+                               (println (str "NO TEXT FOUND.")))
+                           text)))]
            (if (zero? (.length ^CharSequence text))
              (recur)
              (cons (->CharsEvent text)
@@ -117,6 +130,7 @@
 
 (defn- make-input-factory ^XMLInputFactory [props]
   (let [fac (XMLInputFactory/newInstance)]
+    (.setProperty fac WstxInputProperties/P_INPUT_BUFFER_LENGTH 16384)
     (doseq [[k v] props
             :when (contains? input-factory-props k)
             :let [prop (input-factory-props k)]]
@@ -126,8 +140,45 @@
 (defn make-stream-reader [props source]
   (let [fac (make-input-factory props)]
     (cond
-      (instance? Reader source) (.createXMLStreamReader fac ^Reader source)
-      (instance? InputStream source) (.createXMLStreamReader fac ^InputStream source)
+      (instance? Reader source)
+      (let [reader (.createXMLStreamReader fac ^Reader source)]
+        reader)
+      (instance? InputStream source)
+      (let [reader (.createXMLStreamReader fac ^InputStream source)]
+        (println "got here with a reader: " reader " made from a factory: " fac)
+        
+        ;; what's the relation between:
+        ;; - javax.xml.stream/XMLStreamReader
+        ;; and
+        ;; - org.xml.sax/XMLReader ?
+        ;;
+        ;; We have the former, but we need the latter to do:
+        ;;        (.setProperty reader "http://apache.org/xml/properties/input-buffer-size" 16384)                
+        ;;  which we know we need to do from: https://xerces.apache.org/xerces2-j/properties.html
+        ;;
+
+        ;; The connection seems to be: javax.xml.parsers.SAXParser:
+        ;; /**
+        ;;  * Defines the API that wraps an {@link org.xml.sax.XMLReader}
+        ;;  * implementation class. In JAXP 1.0, this class wrapped the
+        ;;  * {@link org.xml.sax.Parser} interface, however this interface was
+        ;;  * replaced by the {@link org.xml.sax.XMLReader}. For ease
+        ;;  * of transition, this class continues to support the same name
+        ;;  * and interface as well as supporting new methods.
+
+        ;; javax.xml.parsers.SAXParser has a method: setProperty(String name, Object value)
+        ;; and the docs in the source file says for this method:
+        ;;        <p>Sets the particular property in the underlying implementation of
+        ;;           * {@link org.xml.sax.XMLReader}.
+
+        ;; So then the next question is: what's the connection between:
+        ;; - javax.xml.stream/XMLInputFactory (which we have: it's the 'fac' above) and
+        ;; - javax.xml.parsers/SAXParser (which we don't have but want, so we can call setProperty().*/
+
+
+        ;; or maybe use jdk.xml.internal.JdkXmlUtils#getXmlReader()?
+        
+        reader)
       :else (throw (IllegalArgumentException.
                      "source should be java.io.Reader or java.io.InputStream")))))
 
