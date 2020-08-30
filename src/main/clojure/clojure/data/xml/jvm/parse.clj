@@ -20,8 +20,7 @@
    (java.io InputStream Reader)
    (javax.xml.stream
     XMLInputFactory XMLStreamReader XMLStreamConstants)
-   (com.ctc.wstx.api
-    WstxInputProperties)
+   (com.ctc.wstx.api WstxInputProperties)
    (clojure.data.xml.event EndElementEvent)))
 
 (def ^{:private true} input-factory-props
