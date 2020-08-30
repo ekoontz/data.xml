@@ -76,7 +76,6 @@
    (loop []
      (let [location (when location-info
                       (location-hash sreader))]
-       (println (str "well, let's try to get the next event from the reader: " sreader))
        (static-case
          (.next sreader)
          XMLStreamConstants/START_ELEMENT
@@ -99,16 +98,10 @@
                      (pull-seq sreader opts (rest ns-envs))))
            (recur))
          XMLStreamConstants/CHARACTERS
-         (if-let [text
-                  (do
-                    (println (str "GOING TO READ SOME TEXT..."))
-                    (and (include-node? :characters)
-                         (not (and skip-whitespace
-                                   (.isWhiteSpace sreader)))
-                         (let [text (.getText sreader)]
-                           (if text (println (str "got some text from .getText(): " text " with length: " (count text)))
-                               (println (str "NO TEXT FOUND.")))
-                           text)))]
+         (if-let [text (and (include-node? :characters)
+                            (not (and skip-whitespace
+                                      (.isWhiteSpace sreader)))
+                            (.getText sreader))]
            (if (zero? (.length ^CharSequence text))
              (recur)
              (cons (->CharsEvent text)
