@@ -11,7 +11,7 @@
     <url>https://github.com/clojure/data.xml</url>
     <connection>scm:git:git://github.com/clojure/data.xml.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/clojure/data.xml.git</developerConnection>
-    <tag>677b748a37610bd2672d63b16aa84d5e07242cfd</tag>
+    <tag>cddc3ed0198b7409c2eb1b52e657c076e1ceb263</tag>
   </scm>
   <build>
     <sourceDirectory>src/main/clojure</sourceDirectory>
@@ -103,7 +103,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.10.1</version>
+      <version>1.10.0-beta8</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
