@@ -32,7 +32,8 @@
    :validating XMLInputFactory/IS_VALIDATING
    :reporter XMLInputFactory/REPORTER
    :resolver XMLInputFactory/RESOLVER
-   :support-dtd XMLInputFactory/SUPPORT_DTD})
+   :support-dtd XMLInputFactory/SUPPORT_DTD
+   :input-buffer-length WstxInputProperties/P_INPUT_BUFFER_LENGTH})
 
 (defn- attr-prefix [^XMLStreamReader sreader index]
   (let [p (.getAttributePrefix sreader index)]
