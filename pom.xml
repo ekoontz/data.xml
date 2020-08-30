@@ -11,7 +11,7 @@
     <url>https://github.com/clojure/data.xml</url>
     <connection>scm:git:git://github.com/clojure/data.xml.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/clojure/data.xml.git</developerConnection>
-    <tag>c29402b2c96b6f3f38e0a47b222fb5cd28add271</tag>
+    <tag>677b748a37610bd2672d63b16aa84d5e07242cfd</tag>
   </scm>
   <build>
     <sourceDirectory>src/main/clojure</sourceDirectory>
