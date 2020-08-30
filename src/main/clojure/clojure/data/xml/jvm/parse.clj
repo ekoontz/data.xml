@@ -119,7 +119,6 @@
 
 (defn- make-input-factory ^XMLInputFactory [props]
   (let [fac (XMLInputFactory/newInstance)]
-    (.setProperty fac WstxInputProperties/P_INPUT_BUFFER_LENGTH 16384)
     (doseq [[k v] props
             :when (contains? input-factory-props k)
             :let [prop (input-factory-props k)]]
